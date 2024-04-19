@@ -1,2 +1,2 @@
 # GaussianFreeField
-Efficient simulation of Gaussian free fields in various geometries.
+Very efficient simulation of Gaussian free fields in various geometries.
