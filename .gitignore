@@ -1,0 +1,3 @@
+# Bytecode files
+__pycache__/
+*.pyc
