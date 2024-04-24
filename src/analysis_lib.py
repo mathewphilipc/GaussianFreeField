@@ -3,7 +3,7 @@
 
 import numpy as np
 import csv
-from sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
+from .sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
 
 # Convert GFF microstate on 2D grid (non-periodic) to the reduced state, with
 # 1's on points where the original microstate matches the given threshold and
