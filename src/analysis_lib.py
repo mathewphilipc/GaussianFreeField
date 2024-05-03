@@ -299,10 +299,11 @@ def summarize_graph_data(input_dir, output_dir, start_index, end_index):
     # Store results as csv
     with open(output_file, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        csvwriter.writerow(["num_samples", "occupation_density_mean", "occupation_density_stderr",
+        csvwriter.writerow(["num_samples", "threshold", "occupation_density_mean", "occupation_density_stderr",
             "second_moment_mean", "second_moment_stderr"])
         for threshold, summary in threshold_to_graph_data_summary.items():
-            new_row = [summary["num_samples"], summary["occupation_density_mean"], summary["occupation_density_stderr"],
+            new_row = [summary["num_samples"], threshold, summary["occupation_density_mean"], 
+summary["occupation_density_stderr"],
                 summary["second_moment_mean"], summary["second_moment_stderr"]]
             csvwriter.writerow(new_row)
 
@@ -322,9 +323,9 @@ def estimate_ratio_vs_density(smaller_input_file, larger_input_file, output_dir,
             row_count = row_count + 1
             if (row_count == 1):
                 continue
-            occupation_density_mean = float(row[1])
-            second_moment_mean = float(row[3])
-            second_moment_stderr = float(row[4])
+            occupation_density_mean = float(row[2])
+            second_moment_mean = float(row[4])
+            second_moment_stderr = float(row[5])
             smaller_torus_data.append([occupation_density_mean, second_moment_mean, second_moment_stderr])
     smaller_torus_data = np.array(smaller_torus_data)
     smaller_torus_data = smaller_torus_data[smaller_torus_data[:, 0].argsort()]
@@ -337,9 +338,9 @@ def estimate_ratio_vs_density(smaller_input_file, larger_input_file, output_dir,
             row_count = row_count + 1
             if (row_count == 1):
                 continue
-            occupation_density_mean = float(row[1])
-            second_moment_mean = float(row[3])
-            second_moment_stderr = float(row[4])
+            occupation_density_mean = float(row[2])
+            second_moment_mean = float(row[4])
+            second_moment_stderr = float(row[5])
             larger_torus_data.append([occupation_density_mean, second_moment_mean, second_moment_stderr])
     larger_torus_data = np.array(larger_torus_data)
     larger_torus_data = larger_torus_data[larger_torus_data[:, 0].argsort()]
