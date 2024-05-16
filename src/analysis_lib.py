@@ -3,7 +3,7 @@
 
 import numpy as np
 import csv
-from .sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
+from sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
 
 # Convert GFF microstate on 2D grid (non-periodic) to the reduced state, with
 # 1's on points where the original microstate matches the given threshold and
@@ -17,7 +17,7 @@ def reduce_2D_microstate(microstate, threshold):
                 output[i][j] = 1
     return output
 
-def reduce_2d_microstate(microstate, threshold):
+def reduce_2D_microstate(microstate, threshold):
     """
     Reduces a 2D microstate array to a binary array based on a threshold.
 
@@ -39,7 +39,7 @@ def reduce_2d_microstate(microstate, threshold):
 
     return reduced_state
 
-def reduce_3d_microstate(microstate, threshold):
+def reduce_3D_microstate(microstate, threshold):
     """
     Reduces a 3D microstate array to a binary array based on a threshold.
 
