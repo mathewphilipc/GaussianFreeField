@@ -11,40 +11,79 @@ from scipy.sparse.linalg import eigs, eigsh
 from scipy.sparse import lil_matrix, dok_matrix, csc_matrix
 
 def linear_to_2D_coordinates(a, N):
-    # Project the linear coordinate a down to coordinates (x,y) on the 2-torus of length N
-    # Normalize so that x,y range from 0 to N-1
-    # Equivalently, xy are the last two digits of a base-N expansion
-    y = a % N;
-    x = ((a - y) // N) % N;
+    """
+    Projects a linear coordinate onto a 2D coordinate system on a 2-torus of length N.
+
+    Parameters:
+    a (int): The linear coordinate.
+    N (int): The length of the 2-torus.
+
+    Returns:
+    list: A list [x, y] representing the 2D coordinates, ranging from 0 to N-1.
+    """
+    y = a % N
+    x = ((a - y) // N) % N
     return [x, y]
 
-def linear_to_3D_coordinates(a,N):
-    # Same, but in 3D
-    z = a % N;
-    a = (a - z) // N;
-    y = a % N;
-    a = (a - y) // N;
-    x = a % N;
+def linear_to_3D_coordinates(a, N):
+    """
+    Projects a linear coordinate onto a 3D coordinate system on a 3-torus of length N.
+
+    Parameters:
+    a (int): The linear coordinate.
+    N (int): The length of the 3-torus.
+
+    Returns:
+    list: A list [x, y, z] representing the 3D coordinates, ranging from 0 to N-1.
+    """
+    z = a % N
+    a = (a - z) // N
+    y = a % N
+    a = (a - y) // N
+    x = a % N
     return [x,y,z]
 
+
 def torus_distance(arr1, arr2, N):
-    # Distance between two integer points on a mod-N torus
-    # For simplicity, if lengths don't match up we just ignore trailing entries
+    """
+    Computes the distance between two integer points on a mod-N torus.
+
+    Parameters:
+    arr1 (list): First list of coordinates.
+    arr2 (list): Second list of coordinates.
+    N (int): The modulus representing the length of the torus.
+
+    Returns:
+    int: The torus distance between the two points.
+    """
     count = 0
     min_len = min(len(arr1), len(arr2))
+
     for i in range(min_len):
-        # Python computes N mod N as N, not 0, so we need to add and subtract 1 to reduce it to 0.
         dist12 = (arr1[i] - arr2[i]) % N
-        dist21  = (arr2[i] - arr1[i]) % N
-        count = count + min(dist12, dist21)
+        dist21 = (arr2[i] - arr1[i]) % N
+        count += min(dist12, dist21)
+
     return count
 
 def grid_distance(arr1, arr2, N):
+    """
+    Computes the grid distance between two integer points.
+
+    Parameters:
+    arr1 (list): First list of coordinates.
+    arr2 (list): Second list of coordinates.
+    N (int): The length of the grid.
+
+    Returns:
+    int: The grid distance between the two points.
+    """
     count = 0
     min_len = min(len(arr1), len(arr2))
+
     for i in range(min_len):
-        # Python computes N mod N as N, not 0, so we need to add and subtract 1 to reduce it to 0.
-        count = count + abs(arr1[i] - arr2[i])
+        count += abs(arr1[i] - arr2[i])
+
     return count
 
 def are_neighbors_2D_torus(a, b, N):

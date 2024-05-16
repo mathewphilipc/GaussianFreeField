@@ -17,16 +17,51 @@ def reduce_2D_microstate(microstate, threshold):
                 output[i][j] = 1
     return output
 
-# Same as above, but for GFF microstate on 3D torus rather than 2D grid.
-def reduce_3D_microstate(microstate, threshold):
-    L = len(microstate)
-    output = H = np.zeros([L,L,L], dtype=np.uint32)
-    for i in range(L):
-        for j in range(L):
-            for k in range(L):
-                if (microstate[i][j][k] >= threshold):
-                    output[i][j][k] = 1
-    return output
+def reduce_2d_microstate(microstate, threshold):
+    """
+    Reduces a 2D microstate array to a binary array based on a threshold.
+
+    Parameters:
+    microstate (np.ndarray): 2D array representing the microstate.
+    threshold (int): The threshold value for reduction.
+
+    Returns:
+    np.ndarray: A 2D binary array where values are 1 if the corresponding 
+                microstate value is greater than or equal to the threshold, else 0.
+    """
+    size = len(microstate)
+    reduced_state = np.zeros((size, size), dtype=np.uint32)
+
+    for i in range(size):
+        for j in range(size):
+            if microstate[i, j] >= threshold:
+                reduced_state[i, j] = 1
+
+    return reduced_state
+
+def reduce_3d_microstate(microstate, threshold):
+    """
+    Reduces a 3D microstate array to a binary array based on a threshold.
+
+    Parameters:
+    microstate (np.ndarray): 3D array representing the microstate.
+    threshold (int): The threshold value for reduction.
+
+    Returns:
+    np.ndarray: A 3D binary array where values are 1 if the corresponding 
+                microstate value is greater than or equal to the threshold, else 0.
+    """
+    size = len(microstate)
+    reduced_state = np.zeros((size, size, size), dtype=np.uint32)
+
+    for i in range(size):
+        for j in range(size):
+            for k in range(size):
+                if microstate[i, j, k] >= threshold:
+                    reduced_state[i, j, k] = 1
+
+    return reduced_state
+
 
 # Interpret the occupied nodes as forming a graph, with edges connected occupied
 # neighbors. This data structure unfortunately doesn't tell which nodes aren't
