@@ -223,6 +223,12 @@ def sample_3D_torus(N, sample_mode):
             c = random.uniform(0.0, 2.0)
         elif (sample_mode == "uniform"):
             c = 1.0
+        elif (sample_mode == "split"):
+            coin_flip = random.randint(0,1)
+            if (coin_flip == 1):
+              c = 0.01
+            else:
+              c = 1.99
         else:
             return
         H[u][u] = H[u][u] + c
