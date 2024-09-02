@@ -196,6 +196,17 @@ def iterative_dfs(graph, start, visited):
     return component
 
 def iterative_connected_components(graph, unoccupied_count):
+    """
+    Find the distribution of sizes of connected components from an adjacency matrix.
+
+    Parameters:
+    graph (np.ndarray): 2D adjacency matrix.
+    unoccupied_count (int): Number of unoccupied nodes (vestigial, TO DELETE)
+
+    Returns:
+    dict: Dictionary from component sizes to frequencies.
+
+    """
     num_nodes = len(graph)
     visited = [False] * num_nodes
     component_sizes = []
@@ -206,14 +217,8 @@ def iterative_connected_components(graph, unoccupied_count):
             component_sizes.append(len(component))
 
     component_count = {}
-    # We don't want to consider unoccupied nodes as lone connected components,
-    # so we finished by subtracting off the number of such nodes.
-    # Actually, that logic is vestigial if we call graph_from_3D_microstate
-    # directly.
-    # component_count[1] = 0
     for size in component_sizes:
         component_count[size] = component_count.get(size, 0) + 1
-    # component_count[1] = component_count[1] - unoccupied_count
 
     return component_count
 

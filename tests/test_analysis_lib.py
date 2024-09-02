@@ -5,7 +5,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 from analysis_lib import (
-    reduce_2D_microstate, reduce_3D_microstate, graph_from_3D_reduced_microstate, graph_from_3D_microstate
+    reduce_2D_microstate, reduce_3D_microstate, graph_from_3D_reduced_microstate, graph_from_3D_microstate, iterative_connected_components
 )
 
 def test_reduce_2D_microstate():
@@ -57,10 +57,54 @@ def test_graph_from_3D_microstate():
     expected_graph = np.array([[0,1,0,0,0],[1,0,0,0,0],[0,0,0,1,1],[0,0,1,0,0],[0,0,1,0,0]], dtype=np.uint32)
     assert np.array_equal(graph, expected_graph)
 
+def test_iterative_connected_components():
+    graph = np.zeros((10,10), dtype=np.uint32)
+    assert iterative_connected_components(graph, -1) == {1: 10}
+
+    graph[0,1] = 1
+    graph[1,0] = 1
+    assert iterative_connected_components(graph, -1) == {1:8, 2:1}
+
+    graph[0,2] = 1
+    graph[2,0] = 1
+    assert iterative_connected_components(graph, -1) == {1:7, 3:1}
+
+    graph[1,2] = 1
+    graph[2,1] = 1
+    assert iterative_connected_components(graph, -1) == {1:7, 3:1}
+
+    graph[3,4] = 1
+    graph[4,3] = 1
+    assert iterative_connected_components(graph, -1) == {1:5, 2:1, 3:1}
+
+    graph[4,5] = 1
+    graph[5,4] = 1
+    assert iterative_connected_components(graph, -1) == {1:4, 3:2}
+
+    graph[5,6] = 1
+    graph[6,5] = 1
+    assert iterative_connected_components(graph, -1) == {1:3, 3:1, 4:1}
+
+    graph[6,7] = 1
+    graph[7,6] = 1
+    assert iterative_connected_components(graph, -1) == {1:2, 3:1, 5:1}
+
+    graph[7,8] = 1
+    graph[8,7] = 1
+    assert iterative_connected_components(graph, -1) == {1:1, 3:1, 6:1}
+
+    graph[8,9] = 1
+    graph[9,8] = 1
+    assert iterative_connected_components(graph, -1) == {3:1, 7:1}
+
+    graph[0,9] = 1
+    graph[9,0] = 1
+    assert iterative_connected_components(graph, -1) == {10:1}
 
 if __name__ == "__main__":
     test_reduce_2D_microstate()
     test_reduce_3D_microstate()
     test_graph_from_3D_microstate()
+    test_iterative_connected_components()
     print("All tests passed!")
 
