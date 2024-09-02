@@ -3,6 +3,9 @@
 
 import numpy as np
 import csv
+
+# In Greene environment, unfortunately we need .sample_lib to run remote jobs.
+#from .sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
 from sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
 
 # Convert GFF microstate on 2D grid (non-periodic) to the reduced state, with
@@ -92,7 +95,7 @@ def graph_from_3D_reduced_microstate(reduced_microstate):
     [ix, iy, iz] = linear_to_3D_coordinates(i,N)
     for j in range(i+1, N**3):
       [jx, jy, jz] = linear_to_3D_coordinates(j,N)
-      if (reduced_microstate[ix][iy][iz] == 1 and reduced_microstate[jx][jy][jz] == 1 and are_neighbors_2D_grid(i,j,N)):
+      if (reduced_microstate[ix][iy][iz] == 1 and reduced_microstate[jx][jy][jz] == 1 and are_neighbors_3D_torus(i,j,N)):
         output[i][j] = 1
         output[j][i] = 1
   return output
@@ -113,7 +116,6 @@ def graph_from_3D_microstate(microstate, threshold):
   for i in range(N**3):
     [ix, iy, iz] = linear_to_3D_coordinates(i,N)
     if (microstate[ix][iy][iz] >= threshold):
-      # print(f"Found occupied node: {i}")
       linear_to_compressed_indices[i] = num_nodes
       compressed_to_linear_indices[num_nodes] = i
       num_nodes = num_nodes + 1
@@ -303,12 +305,12 @@ def summarize_graph_data(input_dir, output_dir, start_index, end_index):
     threshold_to_full_graph_data = {}
     for i in range(start_index, end_index+1):
         input_file = input_dir + "/full_graph_data_" + str(i) + ".csv"
-        print(f"Trying to read file {input_file}")
+        #print(f"Trying to read file {input_file}")
         with open(input_file, newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
             for row in csvreader:
                 threshold = float(row[0])
-                print(f"Studying this sample at threshold = {threshold}")
+                #print(f"Studying this sample at threshold = {threshold}")
                 occupation_density = float(row[1])
                 second_moment = float(row[2])
                 if threshold not in threshold_to_full_graph_data:
@@ -397,7 +399,7 @@ def estimate_ratio_vs_density(smaller_input_file, larger_input_file, output_dir,
         larger_torus_sigma = dy/x
         dratio = np.sqrt(smaller_torus_sigma**2 + larger_torus_sigma**2)
         ratio_vs_density.append([p, ratio, dratio, smaller_torus_sigma, larger_torus_sigma])
-    
+
     # Store results as csv
     with open(output_file, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
