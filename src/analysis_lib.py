@@ -5,8 +5,7 @@ import numpy as np
 import csv
 
 # In Greene environment, unfortunately we need .sample_lib to run remote jobs.
-#from .sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
-from sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
+from sample_lib import linear_to_3D_coordinates,  all_3D_torus_neighbors
 
 def reduce_3D_microstate(microstate, threshold):
     """
@@ -46,41 +45,47 @@ def graph_from_3D_reduced_microstate(reduced_microstate):
         output[j][i] = 1
   return output
 
-# Reduce a microstate and build the occupation graph in one step.
-# Also do it more efficiently and with a smaller gaph.
 def graph_from_3D_microstate(microstate, threshold):
-  # On a first pass, we find all of the vector indices corresponding to occupied
-  # nodes.
-  N = len(microstate)
-  # We represent points in our microstate by linear indices 0 through N^3 - 1.
-  # Only a sublist [a_0, a_1, ...] correspond to points in our occupation graph.
-  # compressed_to_linear_indices maps n to a_n, and c_t_l_i does the reverse,
-  # for 0 <= n <= num_occupied_nodes.
-  linear_to_compressed_indices = {}
-  compressed_to_linear_indices = {}
-  num_nodes = 0;
-  for i in range(N**3):
-    [ix, iy, iz] = linear_to_3D_coordinates(i,N)
-    if (microstate[ix][iy][iz] >= threshold):
-      linear_to_compressed_indices[i] = num_nodes
-      compressed_to_linear_indices[num_nodes] = i
-      num_nodes = num_nodes + 1
-  # Occupation graph has M nodes -> adj mat is MxM instead of naive N^3 x N^3.
-  adj_mat = np.zeros([num_nodes, num_nodes], dtype=np.uint32)
-  # Finding edges in O(M) instead of O(N^6) (lol)
-  for m in range(num_nodes):
-    i = compressed_to_linear_indices[m]
-    #print(f"Looking at vector index {i}")
-    neighbors = all_3D_torus_neighbors(i, N)
-    for j in neighbors:
-      if j in linear_to_compressed_indices:
-        n = linear_to_compressed_indices[j]
-        # print(f"\n{i} has occupied neighbor {j}\n")
-        # print(linear_to_3D_coordinates(i,N))
-        # print(linear_to_3D_coordinates(j,N))
-        adj_mat[m][n] = 1
-        adj_mat[n][m] = 1
-  return adj_mat
+    """
+    Reduces a full microstate and builds occupation graph, using only occupied nodes.
+
+    Parameters:
+    microstate (np.ndarray): 3D array representing the microstate.
+    threshold (int): The threshold value for reduction.
+
+    Returns:
+    np.ndarray: A 2D binary array representing an adjacency matrix.
+    """
+    # On a first pass, we find all of the linear indices corresponding to occupied
+    # nodes.
+    N = len(microstate)
+
+    # We represent points in our microstate by linear indices 0 through N^3 - 1.
+    # Only a sublist [a_0, a_1, ...] correspond to points in our occupation graph.
+    # compressed_to_linear_indices maps n to a_n, and c_t_l_i does the reverse,
+    # for 0 <= n <= num_occupied_nodes.
+    linear_to_compressed_indices = {}
+    compressed_to_linear_indices = {}
+    num_nodes = 0;
+    for i in range(N**3):
+        [ix, iy, iz] = linear_to_3D_coordinates(linear_coord=i, torus_len=N)
+        if (microstate[ix][iy][iz] >= threshold):
+            linear_to_compressed_indices[i] = num_nodes
+            compressed_to_linear_indices[num_nodes] = i
+            num_nodes = num_nodes + 1
+
+    # Occupation graph has M nodes -> adj mat is M x M instead of naive N^3 x N^3.
+    adj_mat = np.zeros([num_nodes, num_nodes], dtype=np.uint32)
+
+    # Find edges in O(M) instead of naive O(N^6).
+    for m in range(num_nodes):
+        for j in all_3D_torus_neighbors(linear_coord=compressed_to_linear_indices[m], N=N):
+            if j in linear_to_compressed_indices:
+                n = linear_to_compressed_indices[j]
+                adj_mat[m][n] = 1
+                adj_mat[n][m] = 1
+
+    return adj_mat
 
 def unoccupied_nodes_3D(reduced_microstate):
   count = 0;
