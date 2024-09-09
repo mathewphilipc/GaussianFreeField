@@ -8,40 +8,6 @@ import csv
 #from .sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
 from sample_lib import linear_to_3D_coordinates, are_neighbors_2D_grid, all_3D_torus_neighbors
 
-# Convert GFF microstate on 2D grid (non-periodic) to the reduced state, with
-# 1's on points where the original microstate matches the given threshold and
-# 0's elsewhere.
-def reduce_2D_microstate(microstate, threshold):
-    L = len(microstate)
-    output = H = np.zeros([L,L], dtype=np.uint32)
-    for i in range(L):
-        for j in range(L):
-            if (microstate[i][j] >= threshold):
-                output[i][j] = 1
-    return output
-
-def reduce_2D_microstate(microstate, threshold):
-    """
-    Reduces a 2D microstate array to a binary array based on a threshold.
-
-    Parameters:
-    microstate (np.ndarray): 2D array representing the microstate.
-    threshold (int): The threshold value for reduction.
-
-    Returns:
-    np.ndarray: A 2D binary array where values are 1 if the corresponding 
-                microstate value is greater than or equal to the threshold, else 0.
-    """
-    size = len(microstate)
-    reduced_state = np.zeros((size, size), dtype=np.uint32)
-
-    for i in range(size):
-        for j in range(size):
-            if microstate[i, j] >= threshold:
-                reduced_state[i, j] = 1
-
-    return reduced_state
-
 def reduce_3D_microstate(microstate, threshold):
     """
     Reduces a 3D microstate array to a binary array based on a threshold.
@@ -65,26 +31,6 @@ def reduce_3D_microstate(microstate, threshold):
 
     return reduced_state
 
-
-# Interpret the occupied nodes as forming a graph, with edges connected occupied
-# neighbors. This data structure unfortunately doesn't tell which nodes aren't
-# occupied to begin with, so we correct for this in the next step.
-def graph_from_2D_reduced_microstate(reduced_microstate):
-  N = len(reduced_microstate)
-  output = np.zeros([N**2, N**2], dtype=np.uint32)
-  # Our graph nodes are linear coordinates from 0 to N^2 - 1, representing
-  # points in an NxN grid. We add an edge between any two points if they are
-  # neighbors and are both occupied.
-  for i in range(N**2):
-    [ix, iy] = linear_to_2D_coordinates(i,N)
-    for j in range(i+1, N**2):
-      [jx, jy] = linear_to_2D_coordinates(j,N)
-      if (reduced_microstate[ix][iy] == 1 and reduced_microstate[jx][jy] == 1 and are_neighbors_2D_grid(i,j,N)):
-        output[i][j] = 1
-        output[j][i] = 1
-  return output
-
-# Same as above, but for 3D torus instead of 2D grid.
 def graph_from_3D_reduced_microstate(reduced_microstate):
   N = len(reduced_microstate)
   output = np.zeros([N**3, N**3], dtype=np.uint32)
@@ -135,15 +81,6 @@ def graph_from_3D_microstate(microstate, threshold):
         adj_mat[m][n] = 1
         adj_mat[n][m] = 1
   return adj_mat
-
-# Count the number of unoccupied nodes.
-def unoccupied_nodes_2D(reduced_microstate):
-  count = 0;
-  N = len(reduced_microstate)
-  for i in range(N):
-    for j in range(N):
-      count = count + (1 - reduced_microstate[i][j])
-  return count
 
 def unoccupied_nodes_3D(reduced_microstate):
   count = 0;
@@ -227,28 +164,6 @@ def second_moment(cluster_size_distribution):
   for size, count in cluster_size_distribution.items():
     moment = moment + count*(size**2)
   return moment
-
-# Turns microstate into associated reduced graph at given threshold, then
-# analyzes everything we need about the associated graph.
-def analyze_2D_microstate(microstate, threshold):
-  graph_data = {}
-  reduced_microstate = reduce_2D_microstate(microstate, threshold)
-  unoccupied_count = unoccupied_nodes_2D(reduced_microstate)
-  cluster_size_distribution = connected_components(graph_from_2D_reduced_microstate(reduced_microstate), unoccupied_count)
-
-  graph_data["occupation_density"] = round(1 - (unoccupied_count / N**2),4)
-  graph_data["second_moment"] = second_moment(cluster_size_distribution)
-  return graph_data
-
-def iterative_analyze_2D_microstate(microstate, threshold):
-  graph_data = {}
-  reduced_microstate = reduce_2D_microstate(microstate, threshold)
-  unoccupied_count = unoccupied_nodes_2D(reduced_microstate)
-  cluster_size_distribution = iterative_connected_components(graph_from_2D_reduced_microstate(reduced_microstate), unoccupied_count)
-
-  graph_data["occupation_density"] = round(1 - (unoccupied_count / N**2),4)
-  graph_data["second_moment"] = second_moment(cluster_size_distribution)
-  return graph_data
 
 # Same as above, but uses iteration instead of explicit recursion to avoid maxed
 # out recursion depth.
