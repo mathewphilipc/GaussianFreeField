@@ -5,14 +5,8 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 from analysis_lib import (
-    reduce_2D_microstate, reduce_3D_microstate, graph_from_3D_reduced_microstate, graph_from_3D_microstate, iterative_connected_components
+    reduce_3D_microstate, graph_from_3D_reduced_microstate, graph_from_3D_microstate, iterative_connected_components
 )
-
-def test_reduce_2D_microstate():
-    microstate = np.array([[2, 3], [1, 4]])
-    threshold = 3
-    expected_output = np.array([[0, 1], [0, 1]], dtype=np.uint32)
-    assert np.array_equal(reduce_2D_microstate(microstate, threshold), expected_output)
 
 def test_reduce_3D_microstate():
     microstate = np.array([[[2.3, 3.1], [1.0, 4.9]], [[5.9, 6.8], [7.2, 8.2]]])
@@ -102,7 +96,6 @@ def test_iterative_connected_components():
     assert iterative_connected_components(graph, -1) == {10:1}
 
 if __name__ == "__main__":
-    test_reduce_2D_microstate()
     test_reduce_3D_microstate()
     test_graph_from_3D_microstate()
     test_iterative_connected_components()

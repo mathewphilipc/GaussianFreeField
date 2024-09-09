@@ -4,14 +4,8 @@ import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from sample_lib import (
-    linear_to_2D_coordinates, linear_to_3D_coordinates, torus_distance, are_neighbors_3D_grid, all_3D_torus_neighbors, are_neighbors_3D_torus
+    linear_to_3D_coordinates, torus_distance, are_neighbors_3D_grid, all_3D_torus_neighbors, are_neighbors_3D_torus
 )
-
-def test_linear_to_2D_coordinates():
-    assert linear_to_2D_coordinates(linear_coord=0, torus_len=3) == [0, 0]
-    assert linear_to_2D_coordinates(linear_coord=1, torus_len=3) == [0, 1]
-    assert linear_to_2D_coordinates(linear_coord=3, torus_len=3) == [1, 0]
-    assert linear_to_2D_coordinates(linear_coord=5, torus_len=3) == [1, 2]
 
 def test_linear_to_3D_coordinates():
     assert linear_to_3D_coordinates(linear_coord=0, torus_len=3) == [0, 0, 0]
@@ -63,7 +57,6 @@ def test_all_3D_torus_neighbors():
         assert are_neighbors_3D_torus(a=30, b=neighbor, N=10)
 
 if __name__ == "__main__":
-    test_linear_to_2D_coordinates()
     test_linear_to_3D_coordinates()
     test_torus_distance()
     test_torus_distance_unequal_length()
