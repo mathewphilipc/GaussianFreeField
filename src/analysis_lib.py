@@ -87,15 +87,6 @@ def graph_from_3D_microstate(microstate, threshold):
 
     return adj_mat
 
-def unoccupied_nodes_3D(reduced_microstate):
-  count = 0;
-  N = len(reduced_microstate)
-  for i in range(N):
-    for j in range(N):
-      for k in range(N):
-        count = count + (1 - reduced_microstate[i][j][k])
-  return count
-
 def dfs(graph, node, visited, component):
     visited[node] = True
     component.append(node)
@@ -176,7 +167,6 @@ def iterative_analyze_3D_microstate(microstate, threshold):
   N = len(microstate)
   graph_data = {}
   # reduced_microstate = reduce_3D_microstate(microstate, threshold)
-  # unoccupied_count = unoccupied_nodes_3D(reduced_microstate)
   occupation_graph = graph_from_3D_microstate(microstate, threshold)
   unoccupied_count = N**3 - len(occupation_graph)
   cluster_size_distribution = iterative_connected_components(occupation_graph, unoccupied_count)
