@@ -5,7 +5,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 from analysis_lib import (
-    reduce_3D_microstate, graph_from_3D_reduced_microstate, graph_from_3D_microstate, iterative_connected_components, second_moment
+    reduce_3D_microstate, graph_from_3D_microstate, iterative_connected_components, second_moment
 )
 
 def test_reduce_3D_microstate():

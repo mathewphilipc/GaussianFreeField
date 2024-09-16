@@ -30,21 +30,6 @@ def reduce_3D_microstate(microstate, threshold):
 
     return reduced_state
 
-def graph_from_3D_reduced_microstate(reduced_microstate):
-  N = len(reduced_microstate)
-  output = np.zeros([N**3, N**3], dtype=np.uint32)
-  # Our graph nodes are linear coordinates from 0 to N^3 - 1, representing
-  # points in an NxNxN grid. We add an edge between any two points if they are
-  # neighbors and are both occupied.
-  for i in range(N**3):
-    [ix, iy, iz] = linear_to_3D_coordinates(i,N)
-    for j in range(i+1, N**3):
-      [jx, jy, jz] = linear_to_3D_coordinates(j,N)
-      if (reduced_microstate[ix][iy][iz] == 1 and reduced_microstate[jx][jy][jz] == 1 and are_neighbors_3D_torus(i,j,N)):
-        output[i][j] = 1
-        output[j][i] = 1
-  return output
-
 def graph_from_3D_microstate(microstate, threshold):
     """
     Reduces a full microstate and builds occupation graph, using only occupied nodes.
