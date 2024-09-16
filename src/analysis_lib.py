@@ -156,10 +156,19 @@ def iterative_connected_components(graph, unoccupied_count):
     return component_count
 
 def second_moment(cluster_size_distribution):
-  moment = 0
-  for size, count in cluster_size_distribution.items():
-    moment = moment + count*(size**2)
-  return moment
+    """
+    Computes the second moment of a distribution of cluster sizes.
+
+    Parameters:
+    cluster_size_distribution (dict): Dictionary from component sizes to frequencies
+
+    Returns:
+    int: Second moment of cluster size distributions.
+    """
+    moment = 0
+    for size, count in cluster_size_distribution.items():
+        moment = moment + count*(size**2)
+    return moment
 
 # Same as above, but uses iteration instead of explicit recursion to avoid maxed
 # out recursion depth.

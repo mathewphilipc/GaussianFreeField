@@ -5,7 +5,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 from analysis_lib import (
-    reduce_3D_microstate, graph_from_3D_reduced_microstate, graph_from_3D_microstate, iterative_connected_components
+    reduce_3D_microstate, graph_from_3D_reduced_microstate, graph_from_3D_microstate, iterative_connected_components, second_moment
 )
 
 def test_reduce_3D_microstate():
@@ -95,9 +95,16 @@ def test_iterative_connected_components():
     graph[9,0] = 1
     assert iterative_connected_components(graph, -1) == {10:1}
 
+def test_second_moment():
+    assert second_moment({}) == 0
+    assert second_moment({0: 2}) == 0
+    assert second_moment({0: 2, 1: 3}) == 3
+    assert second_moment({0: 2, 1: 3, 2: 10}) == 43
+
 if __name__ == "__main__":
     test_reduce_3D_microstate()
     test_graph_from_3D_microstate()
     test_iterative_connected_components()
+    test_second_moment()
     print("All tests passed!")
 
