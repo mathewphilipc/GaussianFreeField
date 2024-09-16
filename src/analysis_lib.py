@@ -137,18 +137,25 @@ def second_moment(cluster_size_distribution):
         moment = moment + count*(size**2)
     return moment
 
-# Same as above, but uses iteration instead of explicit recursion to avoid maxed
-# out recursion depth.
 def iterative_analyze_3D_microstate(microstate, threshold):
-  N = len(microstate)
-  graph_data = {}
-  # reduced_microstate = reduce_3D_microstate(microstate, threshold)
-  occupation_graph = graph_from_3D_microstate(microstate, threshold)
-  unoccupied_count = N**3 - len(occupation_graph)
-  cluster_size_distribution = iterative_connected_components(occupation_graph, unoccupied_count)
-  graph_data["occupation_density"] = round(1 - (unoccupied_count / N**3),6)
-  graph_data["second_moment"] = second_moment(cluster_size_distribution)
-  return graph_data
+    """
+    Reduces a microstate and computes occupation density and second moment.
+
+    Parameters:
+    microstate (np.ndarray): 3D array representing unreduced microstate.
+    threshold (float): Threshold by which to reduce microstate.
+
+    Returns:
+    dict: Dictionary containing reduced microstate's occ density and second moment.
+    """
+    N = len(microstate)
+    graph_data = {}
+    occupation_graph = graph_from_3D_microstate(microstate, threshold)
+    cluster_size_distribution = iterative_connected_components(occupation_graph)
+
+    graph_data["occupation_density"] = round(len(occupation_graph) / N**3, 6)
+    graph_data["second_moment"] = second_moment(cluster_size_distribution)
+    return graph_data
 
 # Opens input_dir/microstate_*.npy for * ranging from start_index to
 # end_index. For each microstate, creates reduced microstates at the
