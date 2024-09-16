@@ -157,41 +157,44 @@ def iterative_analyze_3D_microstate(microstate, threshold):
     graph_data["second_moment"] = second_moment(cluster_size_distribution)
     return graph_data
 
-# Opens input_dir/microstate_*.npy for * ranging from start_index to
-# end_index. For each microstate, creates reduced microstates at the
-# prescribed range of thresholds and computes some graph properties we care
-# about (occupation density + second moment of cluster size distribution).
-
-# Output data structure puts everything in output_dir/full_data_*.csv for *
-# in the same range, saving after every microstate. Csv contains a row for
-# each threshold with [threshold occupation_density second_moment] columns.
-# This is slightly awkward, but relatively robust to jobs being interrupted.
-# The extra file operations contribute trivial latency compared to the graph
-# analysis.
 def compute_full_graph_data(input_dir, output_dir, start_index, end_index,
     min_threshold, max_threshold, num_thresholds):
+    """
+    Analyses a collection of microstates at a range of prescribed thresholds.
+
+    Parameters:
+    input_dir (string): Directory containing microstates to analyse.
+    output_dir (string): Directory in which to store results.
+    start_index (string): Index of first microstate to analyze (inclusive).
+    end_end (string): Index of final microstate to analyze (inclusive).
+    min_threshold (float): Lowest threshold at which to reduce and analyse.
+    max_threshold (float): Highest threshold at which to reduce and analyse.
+    num_thresholds (int): Number of thresholds (including endpoints).
+
+    Returns:
+    None (but side effect of writing results to output_dir/...).
+    """
+
     threshold_stepsize = (max_threshold - min_threshold) / (num_thresholds - 1)
     for i in range(start_index, end_index+1):
+        # We assume input files have the following name format.
         input_file = input_dir + "/microstate_" + str(i) + ".npy"
-        print(f"\n\nAnalyzing microstate \# {i}")
-        print(f"Input file found in {input_file}")
         output_file = output_dir + "/full_graph_data_" + str(i) + ".csv"
-        print(f"Output file will be {output_file}")
-        print("Trying to load array...")
         microstate = np.load(input_file)
-        print(f"Sanity checking size of current array: {microstate.size}")
-        print(f"type of current array: {type(microstate)}")
-        print(f"Shape of current array: {microstate.shape}")
+
+        # Output data structure puts everything in output_dir/full_data_*.csv for *
+        # in the same range, saving after every microstate. Csv contains a row for
+        # each threshold with [threshold occupation_density second_moment] columns.
+        # This is slightly awkward, but relatively robust to jobs being interrupted.
+        # The extra file operations contribute trivial latency compared to the graph
+        # analysis.
         with open(output_file, 'w', newline='') as csvfile:
             csv_writer = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             for j in range(num_thresholds):
                 threshold = round(min_threshold + j*threshold_stepsize, 3)
-                print(f"Studying at threshold {threshold}")
                 graph_data = iterative_analyze_3D_microstate(microstate, threshold)
                 occupation_density = graph_data["occupation_density"]
                 second_moment = graph_data["second_moment"]
-                print(f"Occupation density = {occupation_density}")
-                print(f"Second moment = {second_moment}")
                 csv_writer.writerow([str(threshold), str(occupation_density), str(second_moment)])
 
 # Read through a collection of full graph data files. Compute average (with stderr)
