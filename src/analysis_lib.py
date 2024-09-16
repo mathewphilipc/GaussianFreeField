@@ -200,18 +200,28 @@ def compute_full_graph_data(input_dir, output_dir, start_index, end_index,
 # Read through a collection of full graph data files. Compute average (with stderr)
 # of occupation density and second moment at each threshold.
 def summarize_graph_data(input_dir, output_dir, start_index, end_index):
-    output_file = output_dir + "/summarized_graph_data.csv"
+    """
+    Computes and stores per-threshold sample statistics from a list of full graph data files.
 
-    # Read in all full graph data, store in nested dict
+    Parameters:
+    input_dir (string): Directory containing a set of full_graph_data files.
+    output_dir (string): Directory in which to store results.
+    start_index (string): Index of first full_graph_data file to include (inclusive).
+    end_index (string): Index of last full_graph_data file to include (inclusive).
+
+    Returns:
+    None (but side effect of writing results to output_dir/summarized_graph_data.csv).
+    """
+
+    # Read in all full graph data, store in nested dict of the form
+    # threshold -> [list of occuptation densities, list of second moments].
     threshold_to_full_graph_data = {}
     for i in range(start_index, end_index+1):
         input_file = input_dir + "/full_graph_data_" + str(i) + ".csv"
-        #print(f"Trying to read file {input_file}")
         with open(input_file, newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
             for row in csvreader:
                 threshold = float(row[0])
-                #print(f"Studying this sample at threshold = {threshold}")
                 occupation_density = float(row[1])
                 second_moment = float(row[2])
                 if threshold not in threshold_to_full_graph_data:
@@ -221,10 +231,10 @@ def summarize_graph_data(input_dir, output_dir, start_index, end_index):
                 threshold_to_full_graph_data[threshold]["occupation_densities"].append(occupation_density)
                 threshold_to_full_graph_data[threshold]["second_moments"].append(second_moment)
 
-    # Summarize graph data in simpler nested dict
+    # Summarize graph data in simpler nested dict.
+    # In the end we are computing sample mean + stddev of occ_density + second moment at each threshold.
     threshold_to_graph_data_summary = {}
     for threshold in threshold_to_full_graph_data.keys():
-        print(f"Now summarizing at threshold = {threshold}")
         occupation_densities = threshold_to_full_graph_data[threshold]["occupation_densities"]
         second_moments = threshold_to_full_graph_data[threshold]["second_moments"]
         num_samples = len(second_moments)
@@ -234,14 +244,15 @@ def summarize_graph_data(input_dir, output_dir, start_index, end_index):
         threshold_to_graph_data_summary[threshold]["occupation_density_stderr"] = np.std(occupation_densities) / np.sqrt(num_samples)
         threshold_to_graph_data_summary[threshold]["second_moment_mean"] = np.average(second_moments)
         threshold_to_graph_data_summary[threshold]["second_moment_stderr"] = np.std(second_moments) / np.sqrt(num_samples)
-    # Store results as csv
+
+    # Store results as csv.
+    output_file = output_dir + "/summarized_graph_data.csv"
     with open(output_file, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=' ', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writerow(["num_samples", "threshold", "occupation_density_mean", "occupation_density_stderr",
             "second_moment_mean", "second_moment_stderr"])
         for threshold, summary in threshold_to_graph_data_summary.items():
-            new_row = [summary["num_samples"], threshold, summary["occupation_density_mean"], 
-summary["occupation_density_stderr"],
+            new_row = [summary["num_samples"], threshold, summary["occupation_density_mean"], summary["occupation_density_stderr"],
                 summary["second_moment_mean"], summary["second_moment_stderr"]]
             csvwriter.writerow(new_row)
 
