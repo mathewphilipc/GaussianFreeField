@@ -72,9 +72,18 @@ def graph_from_3D_microstate(microstate, threshold):
 
     return adj_mat
 
-# Same as above, but iterative rather than explicitly recursive so we don't max
-# out recursion depth.
 def iterative_dfs(graph, start, visited):
+    """
+    Runs iterative (not recursive) depth-first search from a given start node.
+
+    Parameters:
+    graph (np.ndarray): A 2D binary array representing an adjacency matrix.
+    start (int): The index of a starting node.
+    visited (dict): A dictionary (int -> bool) telling which nodes have been visited.
+
+    Returns:
+    list: A list of all indices of nodes in the connected component containing start.
+    """
     stack = [start]
     component = []
     while stack:
