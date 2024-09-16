@@ -87,32 +87,6 @@ def graph_from_3D_microstate(microstate, threshold):
 
     return adj_mat
 
-def dfs(graph, node, visited, component):
-    visited[node] = True
-    component.append(node)
-    for neighbor, connected in enumerate(graph[node]):
-        if connected and not visited[neighbor]:
-            dfs(graph, neighbor, visited, component)
-
-def connected_components(graph, unoccupied_count):
-    num_nodes = len(graph)
-    visited = [False] * num_nodes
-    component_sizes = []
-
-    for node in range(num_nodes):
-        if not visited[node]:
-            component = []
-            dfs(graph, node, visited, component)
-            component_sizes.append(len(component))
-
-    component_count = {}
-    component_count[1] = 0
-    for size in component_sizes:
-        component_count[size] = component_count.get(size, 0) + 1
-    component_count[1] = component_count[1] - unoccupied_count
-
-    return component_count
-
 # Same as above, but iterative rather than explicitly recursive so we don't max
 # out recursion depth.
 def iterative_dfs(graph, start, visited):
