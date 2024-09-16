@@ -96,13 +96,12 @@ def iterative_dfs(graph, start, visited):
                     stack.append(neighbor)
     return component
 
-def iterative_connected_components(graph, unoccupied_count):
+def iterative_connected_components(graph):
     """
     Find the distribution of sizes of connected components from an adjacency matrix.
 
     Parameters:
     graph (np.ndarray): 2D adjacency matrix.
-    unoccupied_count (int): Number of unoccupied nodes (vestigial, TO DELETE)
 
     Returns:
     dict: Dictionary from component sizes to frequencies.

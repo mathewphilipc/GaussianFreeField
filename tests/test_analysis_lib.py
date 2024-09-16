@@ -53,47 +53,47 @@ def test_graph_from_3D_microstate():
 
 def test_iterative_connected_components():
     graph = np.zeros((10,10), dtype=np.uint32)
-    assert iterative_connected_components(graph, -1) == {1: 10}
+    assert iterative_connected_components(graph) == {1: 10}
 
     graph[0,1] = 1
     graph[1,0] = 1
-    assert iterative_connected_components(graph, -1) == {1:8, 2:1}
+    assert iterative_connected_components(graph) == {1:8, 2:1}
 
     graph[0,2] = 1
     graph[2,0] = 1
-    assert iterative_connected_components(graph, -1) == {1:7, 3:1}
+    assert iterative_connected_components(graph) == {1:7, 3:1}
 
     graph[1,2] = 1
     graph[2,1] = 1
-    assert iterative_connected_components(graph, -1) == {1:7, 3:1}
+    assert iterative_connected_components(graph) == {1:7, 3:1}
 
     graph[3,4] = 1
     graph[4,3] = 1
-    assert iterative_connected_components(graph, -1) == {1:5, 2:1, 3:1}
+    assert iterative_connected_components(graph) == {1:5, 2:1, 3:1}
 
     graph[4,5] = 1
     graph[5,4] = 1
-    assert iterative_connected_components(graph, -1) == {1:4, 3:2}
+    assert iterative_connected_components(graph) == {1:4, 3:2}
 
     graph[5,6] = 1
     graph[6,5] = 1
-    assert iterative_connected_components(graph, -1) == {1:3, 3:1, 4:1}
+    assert iterative_connected_components(graph) == {1:3, 3:1, 4:1}
 
     graph[6,7] = 1
     graph[7,6] = 1
-    assert iterative_connected_components(graph, -1) == {1:2, 3:1, 5:1}
+    assert iterative_connected_components(graph) == {1:2, 3:1, 5:1}
 
     graph[7,8] = 1
     graph[8,7] = 1
-    assert iterative_connected_components(graph, -1) == {1:1, 3:1, 6:1}
+    assert iterative_connected_components(graph) == {1:1, 3:1, 6:1}
 
     graph[8,9] = 1
     graph[9,8] = 1
-    assert iterative_connected_components(graph, -1) == {3:1, 7:1}
+    assert iterative_connected_components(graph) == {3:1, 7:1}
 
     graph[0,9] = 1
     graph[9,0] = 1
-    assert iterative_connected_components(graph, -1) == {10:1}
+    assert iterative_connected_components(graph) == {10:1}
 
 def test_second_moment():
     assert second_moment({}) == 0
