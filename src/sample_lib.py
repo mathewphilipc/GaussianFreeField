@@ -154,52 +154,89 @@ def sample_3D_torus(N, sample_mode):
     Returns:
     list: NxNxN np array encoding a GFF microstate.
     """
-  start_time = time.perf_counter()
-  dim = 3
-  H = np.zeros([N**3,N**3])
-  for u in range(N**3):
-    for v in all_3D_torus_neighbors(u,N):
-      if v > u:
-        c = 0.0
-        if (sample_mode == "linear"):
-            c = random.uniform(0.0, 2.0)
-        elif (sample_mode == "uniform"):
-            c = 1.0
-        elif (sample_mode == "split"):
-            coin_flip = random.randint(0,1)
-            if (coin_flip == 1):
-              c = 0.01
-            else:
-              c = 1.99
-        else:
-            return
-        H[u][u] = H[u][u] + c
-        H[v][v] = H[v][v] + c
-        H[u][v] = H[u][v] - c
-        H[v][u] = H[v][u] - c
+    start_time = time.perf_counter()
+    dim = 3
+    H = np.zeros([N**3,N**3])
+    for u in range(N**3):
+        for v in all_3D_torus_neighbors(u,N):
+            if v > u:
+                c = 0.0
+                if (sample_mode == "linear"):
+                    c = random.uniform(0.0, 2.0)
+                elif (sample_mode == "uniform"):
+                    c = 1.0
+                elif (sample_mode == "split"):
+                    coin_flip = random.randint(0,1)
+                    if (coin_flip == 1):
+                        c = 0.01
+                    else:
+                        c = 1.99
+                else:
+                    return
+                H[u][u] = H[u][u] + c
+                H[v][v] = H[v][v] + c
+                H[u][v] = H[u][v] - c
+                H[v][u] = H[v][u] - c
 
-  # These matrices diagonalize H, in the sense that D is diagonal, V is
-  # orthogonal, and H = R*D*R^T.
-  eigenvalues, eigenvectors = eigsh(H,N**3) # specific method for Hermitian
-  D = np.diag(eigenvalues).real
-  R = eigenvectors.real
+    # These matrices diagonalize H, in the sense that D is diagonal, V is
+    # orthogonal, and H = R*D*R^T.
+    eigenvalues, eigenvectors = eigsh(H,N**3) # specific method for Hermitian
+    D = np.diag(eigenvalues).real
+    R = eigenvectors.real
 
-  # Then each component (R^T*X)_i is an IID Gaussian with mu = 0 and
-  # sigma = sqrt(2)/D_{ii}.
-  Xprime = np.zeros([N**3])
-  for v in range(N**3):
-    if abs(D[v][v] > 0.01):
-      mu = 0
-      sigma = np.sqrt(2*dim/D[v][v])
-      Xprime[v] = np.random.normal(mu,sigma)
-  X = R.dot(Xprime)
-  microstate = np.zeros([N,N,N])
-  for k in range(N**3):
-    [x,y,z] = linear_to_3D_coordinates(k,N)
-    microstate[x][y][z] = X[k]
-  total_time = time.perf_counter() - start_time
+    # Then each component (R^T*X)_i is an IID Gaussian with mu = 0 and
+    # sigma = sqrt(2)/D_{ii}.
+    Xprime = np.zeros([N**3])
+    for v in range(N**3):
+        if abs(D[v][v] > 0.01):
+            mu = 0
+            sigma = np.sqrt(2*dim/D[v][v])
+            Xprime[v] = np.random.normal(mu,sigma)
+    X = R.dot(Xprime)
+    microstate = np.zeros([N,N,N])
+    for k in range(N**3):
+        [x,y,z] = linear_to_3D_coordinates(k,N)
+        microstate[x][y][z] = X[k]
+    total_time = time.perf_counter() - start_time
 
-  return microstate
+    return microstate
+
+def sample_env_measure(N, sample_mode, output_dir):
+    """
+    Given an integer sidelength and a sample mode, returns NxNxN np array.
+
+    Parameters:
+    N (int): Integer sidelength of torus on which to sample.
+    sample_mode (string): One of "linear", "uniform", or "split".
+    output_dir (string): Output directory.
+
+    Returns:
+    None
+    """
+    H = np.zeros([N**3,N**3])
+    for u in range(N**3):
+        for v in all_3D_torus_neighbors(u,N):
+            if v > u:
+                c = 0.0
+                if (sample_mode == "linear"):
+                    c = random.uniform(0.0, 2.0)
+                elif (sample_mode == "uniform"):
+                    c = 1.0
+                elif (sample_mode == "split"):
+                    coin_flip = random.randint(0,1)
+                    if (coin_flip == 1):
+                        c = 0.01
+                    else:
+                        c = 1.99
+                else:
+                    return
+                H[u][u] = H[u][u] + c
+                H[v][v] = H[v][v] + c
+                H[u][v] = H[u][v] - c
+                H[v][u] = H[v][u] - c
+    output_file = output_dir + '/env_measure.npy'
+    np.save(output_file, H)
+
 
 def repeated_random_sample(N, sample_mode, output_dir, start_index, end_index):
    # Repeated samples 3D torus microstates of size N and saves them
