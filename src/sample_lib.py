@@ -123,12 +123,8 @@ def all_3D_torus_neighbors(linear_coord, N):
     # Increment up or down
     for increment in {-1,1}:
         for dim in {0,1,2}:
-            #print(f"Increment = {increment}")
-            #print(f"dim = {dim}")
             new_coords = [x,y,z]
             new_coords[dim] = ((new_coords[dim] + increment) % N)
-            #print("New coordinates:")
-            #print(new_coords)
             new_neighbor = new_coords[2] + new_coords[1]*N + new_coords[0]*(N**2)
             neighbors.append(new_neighbor)
     return neighbors
@@ -153,42 +149,30 @@ def sample_3D_torus(N, sample_mode):
   H = np.zeros([N**3,N**3])
   for u in range(N**3):
     for v in all_3D_torus_neighbors(u,N):
-    # for v in range(u+1,N**3):
       if v > u:
         c = 0.0
         if (sample_mode == "linear"):
             c = random.uniform(0.0, 2.0)
-            print("We are doing linear sampling!")
         elif (sample_mode == "uniform"):
-            print("We are doing uniform sampling!")
             c = 1.0
-            print(f"Conductace = {c}")
         elif (sample_mode == "split"):
-            print("We are doing split sampling!")
             coin_flip = random.randint(0,1)
             if (coin_flip == 1):
-              print(f"Heads up value: {coin_flip}")
               c = 0.01
             else:
-              print(f"Heads down value: {coin_flip}")
               c = 1.99
         else:
             return
-        print(f"Conductance = {c}")
         H[u][u] = H[u][u] + c
         H[v][v] = H[v][v] + c
         H[u][v] = H[u][v] - c
         H[v][u] = H[v][u] - c
-  # construct_time = time.perf_counter()
-  # print("H construction time: {}".format(construct_time - start_time))
 
   # These matrices diagonalize H, in the sense that D is diagonal, V is
   # orthogonal, and H = R*D*R^T.
   eigenvalues, eigenvectors = eigsh(H,N**3) # specific method for Hermitian
   D = np.diag(eigenvalues).real
   R = eigenvectors.real
-  # diag_time = time.perf_counter()
-  # print("Diagonalization time: {}".format(diag_time - construct_time))
 
   # Then each component (R^T*X)_i is an IID Gaussian with mu = 0 and
   # sigma = sqrt(2)/D_{ii}.
@@ -203,11 +187,7 @@ def sample_3D_torus(N, sample_mode):
   for k in range(N**3):
     [x,y,z] = linear_to_3D_coordinates(k,N)
     microstate[x][y][z] = X[k]
-  # sample_time = time.perf_counter()
-  # print("Sampling time: {}".format(sample_time - diag_time))
   total_time = time.perf_counter() - start_time
-  print(f"Total time: {total_time}")
-  # Greene cluster runs ~1.5x as fast here (21s vs 32s at N = 15)
 
   return microstate
 
