@@ -144,6 +144,16 @@ def count_boundary_edges_3D(N,k):
 
 # Sample a zero-centered GFF microstate on an NxNxN torus.
 def sample_3D_torus(N, sample_mode):
+    """
+    Given an integer sidelength and a sample mode, returns NxNxN np array.
+
+    Parameters:
+    N (int): Integer sidelength of torus on which to sample.
+    sample_mode (string): One of "linear", "uniform", or "split".
+
+    Returns:
+    list: NxNxN np array encoding a GFF microstate.
+    """
   start_time = time.perf_counter()
   dim = 3
   H = np.zeros([N**3,N**3])
