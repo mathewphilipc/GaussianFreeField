@@ -203,7 +203,7 @@ def sample_3D_torus(N, sample_mode):
 
 def sample_env_measure(N, sample_mode, output_dir):
     """
-    Given an integer sidelength and a sample mode, returns NxNxN np array.
+    Given an integer sidelength and a sample mode, produces and saves NxNxN np array.
 
     Parameters:
     N (int): Integer sidelength of torus on which to sample.
@@ -235,7 +235,58 @@ def sample_env_measure(N, sample_mode, output_dir):
                 H[u][v] = H[u][v] - c
                 H[v][u] = H[v][u] - c
     output_file = output_dir + '/env_measure.npy'
+    print("Saving file...")
     np.save(output_file, H)
+    print("File saved")
+
+
+def truncate_diagonalize_env_measure(N, M, sample_mode, input_dir, output_dir):
+    """
+    Given an environment measure, truncates + diagonalizes and saves results.
+
+    Parameters:
+    N (int): Integer sidelength of torus on which original measure lives.
+    M (int): Smaller integer sidelength to which we truncate before diagonalizing.
+    input_dir (string): Input directory containing old measure.
+    sample_mode (string): One of "linear", "uniform", or "split".
+    output_dir (string): Output directory.
+
+    Returns:
+    None
+    """
+    print("Reading input file...")
+    input_file = input_dir + '/env_measure.npy'
+    print("Loading Hamiltonian...")
+    H = np.load(input_file)
+    print("Old shape:")
+    print(H.shape)
+
+    # H is stored in terms of a linear index but we want to truncate in torus space
+    Hsub = np.zeros((M**3,M**3))
+    for i in range(M**3):
+        # Extract equivalent linear index in larger torus
+        [ix, iy, iz] = linear_to_3D_coordinates(i, M)
+        large_torus_i = iz + iy*N + ix*(N**2)
+        for j in range(M**3):
+            [jx, jy, jz] = linear_to_3D_coordinates(j, M)
+            large_torus_j = jz + jy*N + jx*(N**2)
+            Hsub[i][j] = H[large_torus_i][large_torus_j]
+    print("New shape:")
+    print(Hsub.shape)
+
+    # These matrices diagonalize H, in the sense that D is diagonal, V is
+    # orthogonal, and H = R*D*R^T.
+    print("Diagonalizing...")
+    eigenvalues, eigenvectors = eigsh(Hsub,M**3) # specific method for Hermitian
+    D = np.diag(eigenvalues).real
+    R = eigenvectors.real
+    print("Saving eigenvalues and eigenvectors")
+    np.save(output_dir + '/eigenvalues.npy', R)
+    np.save(output_dir + '/eigenvalues.npy', D)
+
+
+
+
 
 
 def repeated_random_sample(N, sample_mode, output_dir, start_index, end_index):
