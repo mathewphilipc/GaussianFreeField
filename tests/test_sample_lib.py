@@ -4,7 +4,7 @@ import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from sample_lib import (
-    linear_to_3D_coordinates, torus_distance, are_neighbors_3D_grid, all_3D_torus_neighbors, are_neighbors_3D_torus
+    linear_to_3D_coordinates, three_D_to_linear_coordinates, torus_distance, are_neighbors_3D_grid, all_3D_torus_neighbors, are_neighbors_3D_torus
 )
 
 def test_linear_to_3D_coordinates():
@@ -15,6 +15,12 @@ def test_linear_to_3D_coordinates():
     assert linear_to_3D_coordinates(linear_coord=27, torus_len=3) == [0, 0, 0]
     assert linear_to_3D_coordinates(linear_coord=12, torus_len=3) == [1, 1, 0]
     assert linear_to_3D_coordinates(linear_coord=-15, torus_len=3) == [1, 1, 0]
+
+def test_three_D_to_linear_coordinates():
+    assert three_D_to_linear_coordinates(three_D_coords=[0, 0, 0], torus_len=3) == 0
+    assert three_D_to_linear_coordinates(three_D_coords=[0, 0, 1], torus_len=3) == 1
+    assert three_D_to_linear_coordinates(three_D_coords=[0, 1, 0], torus_len=3) == 3
+    assert three_D_to_linear_coordinates(three_D_coords=[1, 0, 0], torus_len=3) == 9
 
 def test_torus_distance():
     assert torus_distance(arr1=[1, 2, 3], arr2=[4, 5, 6], torus_len=7) == 9
@@ -58,6 +64,7 @@ def test_all_3D_torus_neighbors():
 
 if __name__ == "__main__":
     test_linear_to_3D_coordinates()
+    test_three_D_to_linear_coordinates()
     test_torus_distance()
     test_torus_distance_unequal_length()
     test_are_neighbors_3D_torus()

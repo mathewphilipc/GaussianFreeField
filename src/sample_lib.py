@@ -16,10 +16,10 @@ def linear_to_3D_coordinates(linear_coord, torus_len):
 
     Parameters:
     linear_coord (int): The linear coordinate.
-    torus_len (int): The length of the 3-torus.
+    torus_len (int): The length N of the 3-torus.
 
     Returns:
-    list: A list [x, y, z] representing the 3D coordinates, ranging from 0 to N-1.
+    list: A list [x, y, z] representing the 3D coordinates, ranging from 0 to N-1 (inclusive).
     """
     remainder = linear_coord
     z = remainder % torus_len
@@ -28,6 +28,21 @@ def linear_to_3D_coordinates(linear_coord, torus_len):
     remainder = (remainder - y) // torus_len
     x = remainder % torus_len
     return [x, y, z]
+
+def three_D_to_linear_coordinates(three_D_coords, torus_len):
+    """
+    Assembles a 3D torus coordinate into a single linear coordinate
+
+    Parameters:
+    three_D_coord (int): The linear coordinate.
+    torus_len (int): The length N of the 3-torus.
+
+    Returns:
+    int: The linear coordinate ranging from 0 to N^3 - 1 (inclusive).
+    """
+
+    [x,y,z] = three_D_coords
+    return z + torus_len*y + (torus_len**2)*x
 
 
 def torus_distance(arr1, arr2, torus_len):
@@ -266,10 +281,10 @@ def truncate_diagonalize_env_measure(N, M, sample_mode, input_dir, output_dir):
     for i in range(M**3):
         # Extract equivalent linear index in larger torus
         [ix, iy, iz] = linear_to_3D_coordinates(i, M)
-        large_torus_i = iz + iy*N + ix*(N**2)
+        large_torus_i = three_D_to_linear_coordinates([ix,iy,iz], N)
         for j in range(M**3):
             [jx, jy, jz] = linear_to_3D_coordinates(j, M)
-            large_torus_j = jz + jy*N + jx*(N**2)
+            large_torus_j = three_D_to_linear_coordinates([jx,jy,jz], N)
             Hsub[i][j] = H[large_torus_i][large_torus_j]
     print("New shape:")
     print(Hsub.shape)
