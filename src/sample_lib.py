@@ -324,6 +324,7 @@ def sample_prediagonalized_3D_torus(N, sample_mode, input_dir):
 
     # Then each component (R^T*X)_i is an IID Gaussian with mu = 0 and
     # sigma = sqrt(2)/D_{ii}.
+    dim = 3
     Xprime = np.zeros([N**3])
     for v in range(N**3):
         if abs(D[v][v] > 0.01):
@@ -335,7 +336,6 @@ def sample_prediagonalized_3D_torus(N, sample_mode, input_dir):
     for k in range(N**3):
         [x,y,z] = linear_to_3D_coordinates(k,N)
         microstate[x][y][z] = X[k]
-    total_time = time.perf_counter() - start_time
 
     return microstate
 
@@ -349,6 +349,20 @@ def repeated_random_sample(N, sample_mode, output_dir, start_index, end_index):
    for i in range(start_index, end_index + 1):
       print(f"Trying to save sample \# {i} to file {output_dir}")
       microstate = sample_3D_torus(N, sample_mode)
+      print("Trying to save...")
+      output_file = output_dir + '/microstate_' + str(i) + '.npy'
+      print(f"Output file = {output_file}")
+      np.save(output_file, microstate)
+
+def repeated_random_prediagonalized_sample(N, sample_mode, input_dir, output_dir, start_index, end_index):
+   # Repeated samples 3D torus microstates of size N and saves them
+   # in output_dir under the name sample_* where * ranges from
+   # start_index to end_index and where we work from a fixed pre-
+   # diagonalized Hamiltonian
+   print("Time for a repeated random sample...")
+   for i in range(start_index, end_index + 1):
+      print(f"Trying to save sample \# {i} to file {output_dir}")
+      microstate = sample_prediagonalized_3D_torus(N, sample_mode, input_dir)
       print("Trying to save...")
       output_file = output_dir + '/microstate_' + str(i) + '.npy'
       print(f"Output file = {output_file}")
