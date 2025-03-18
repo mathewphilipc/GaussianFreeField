@@ -296,11 +296,48 @@ def truncate_diagonalize_env_measure(N, M, sample_mode, input_dir, output_dir):
     D = np.diag(eigenvalues).real
     R = eigenvectors.real
     print("Saving eigenvalues and eigenvectors")
-    np.save(output_dir + '/eigenvalues.npy', R)
+    np.save(output_dir + '/eigenvectors.npy', R)
     np.save(output_dir + '/eigenvalues.npy', D)
 
 
 
+def sample_prediagonalized_3D_torus(N, sample_mode, input_dir):
+    """
+    Given an integer sidelength and a sample mode, returns NxNxN np array.
+
+    Parameters:
+    N (int): Integer sidelength of torus on which to sample.
+    sample_mode (string): One of "linear", "uniform", or "split".
+    input_dir (string): Directory containing spectral data for Hamiltonian
+
+    Returns:
+    list: NxNxN np array encoding a GFF microstate.
+    """
+
+    # These matrices diagonalize H, in the sense that D is diagonal, V is
+    # orthogonal, and H = R*D*R^T.
+    eigenvalues_input_file = input_dir + '/eigenvalues.npy'
+    eigenvectors_input_file = input_dir + '/eigenvectors.npy'
+    D = np.load(eigenvalues_input_file)
+    R = np.load(eigenvectors_input_file)
+
+
+    # Then each component (R^T*X)_i is an IID Gaussian with mu = 0 and
+    # sigma = sqrt(2)/D_{ii}.
+    Xprime = np.zeros([N**3])
+    for v in range(N**3):
+        if abs(D[v][v] > 0.01):
+            mu = 0
+            sigma = np.sqrt(2*dim/D[v][v])
+            Xprime[v] = np.random.normal(mu,sigma)
+    X = R.dot(Xprime)
+    microstate = np.zeros([N,N,N])
+    for k in range(N**3):
+        [x,y,z] = linear_to_3D_coordinates(k,N)
+        microstate[x][y][z] = X[k]
+    total_time = time.perf_counter() - start_time
+
+    return microstate
 
 
 
